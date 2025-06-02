@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import './github-theme.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HeaderComponent from './components/HeaderComponent';
 import { PlazaComponent } from './components/PlazaComponent';

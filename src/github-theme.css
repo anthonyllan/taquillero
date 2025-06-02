@@ -1,0 +1,51 @@
+body {
+    background-color: #0d1117 !important;
+    color: #c9d1d9 !important;
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif !important;
+  }
+  
+  .navbar, .modal-content {
+    background-color: #161b22 !important;
+    color: #c9d1d9 !important;
+  }
+  
+  .card, .table, .form-control, .modal-content {
+    background-color: #161b22 !important;
+    color: #c9d1d9 !important;
+    border: 1px solid #30363d !important;
+  }
+  
+  .table thead {
+    background-color: #21262d !important;
+    color: #c9d1d9 !important;
+  }
+  
+  .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #161b22 !important;
+  }
+  
+  .btn-primary {
+    background-color: #238636 !important;
+    border-color: #238636 !important;
+  }
+  
+  .btn-warning {
+    background-color: #d29922 !important;
+    border-color: #d29922 !important;
+    color: #161b22 !important;
+  }
+  
+  .btn-danger {
+    background-color: #da3633 !important;
+    border-color: #da3633 !important;
+  }
+  
+  .btn-secondary {
+    background-color: #21262d !important;
+    border-color: #21262d !important;
+    color: #c9d1d9 !important;
+  }
+  
+  .form-label, .form-control, .modal-title {
+    color: #c9d1d9 !important;
+  }
