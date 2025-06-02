@@ -10,9 +10,8 @@ export const EventoComponent = () => {
   const [modalType, setModalType] = useState('add');
   const [currentEvento, setCurrentEvento] = useState({
     idEvento: '',
-    nombreEvento: '',
-    fechaEvento: '',
-    descripcionEvento: '',
+    tipoEvento: '',
+    fechaHora: '',
     idPlaza: ''
   });
 
@@ -24,7 +23,22 @@ export const EventoComponent = () => {
 
   const handleShowModal = (type, evento = {}) => {
     setModalType(type);
-    setCurrentEvento(evento);
+    if (type === 'add') {
+      setCurrentEvento({
+        idEvento: '',
+        tipoEvento: '',
+        fechaHora: '',
+        idPlaza: ''
+      });
+    } else {
+      // Para editar, convertir la fecha al formato correcto para el input datetime-local
+      const fechaFormateada = evento.fechaHora ? 
+        new Date(evento.fechaHora).toISOString().slice(0, 16) : '';
+      setCurrentEvento({
+        ...evento,
+        fechaHora: fechaFormateada
+      });
+    }
     setShowModal(true);
   };
 
@@ -38,15 +52,22 @@ export const EventoComponent = () => {
   };
 
   const handleSubmit = () => {
+    // Preparar el objeto para enviar al backend
+    const eventoParaEnviar = {
+      ...currentEvento,
+      // Convertir la fecha al formato que espera el backend (Date)
+      fechaHora: currentEvento.fechaHora ? new Date(currentEvento.fechaHora).toISOString() : null
+    };
+
     if (modalType === 'add') {
-      guardarEvento(currentEvento)
+      guardarEvento(eventoParaEnviar)
         .then((response) => {
           setEventos([...eventos, response.data]);
           handleCloseModal();
         })
         .catch((err) => setError(err.message));
     } else if (modalType === 'edit') {
-      actualizarEvento(currentEvento.idEvento, currentEvento)
+      actualizarEvento(currentEvento.idEvento, eventoParaEnviar)
         .then((response) => {
           const updatedEventos = eventos.map((evento) =>
             evento.idEvento === currentEvento.idEvento ? response.data : evento
@@ -66,6 +87,18 @@ export const EventoComponent = () => {
       .catch((err) => setError(err.message));
   };
 
+  // Función para formatear la fecha para mostrar
+  const formatearFecha = (fecha) => {
+    if (!fecha) return '';
+    return new Date(fecha).toLocaleString('es-ES', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
   return (
     <div className="container mt-4">
       <h2>Lista de Eventos</h2>
@@ -76,7 +109,7 @@ export const EventoComponent = () => {
           <tr>
             <th>ID</th>
             <th>Tipo evento</th>
-            <th>Fecha</th>
+            <th>Fecha y Hora</th>
             <th>Plaza ID</th>
             <th>Acciones</th>
           </tr>
@@ -86,7 +119,7 @@ export const EventoComponent = () => {
             <tr key={evento.idEvento}>
               <td>{evento.idEvento}</td>
               <td>{evento.tipoEvento}</td>
-              <td>{evento.fechaHora}</td>
+              <td>{formatearFecha(evento.fechaHora)}</td>
               <td>{evento.idPlaza}</td>
               <td>
                 <Button variant="warning" className="me-2" onClick={() => handleShowModal('edit', evento)}>
@@ -107,31 +140,22 @@ export const EventoComponent = () => {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="formNombreEvento" className="mb-3">
-              <Form.Label>Nombre del Evento</Form.Label>
+            <Form.Group controlId="formTipoEvento" className="mb-3">
+              <Form.Label>Tipo de Evento</Form.Label>
               <Form.Control
                 type="text"
-                name="nombreEvento"
-                value={currentEvento.nombreEvento}
+                name="tipoEvento"
+                value={currentEvento.tipoEvento}
                 onChange={handleInputChange}
+                placeholder="Ej: Concierto, Conferencia, etc."
               />
             </Form.Group>
-            <Form.Group controlId="formFechaEvento" className="mb-3">
-              <Form.Label>Fecha</Form.Label>
+            <Form.Group controlId="formFechaHora" className="mb-3">
+              <Form.Label>Fecha y Hora</Form.Label>
               <Form.Control
-                type="date"
-                name="fechaEvento"
-                value={currentEvento.fechaEvento}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formDescripcionEvento" className="mb-3">
-              <Form.Label>Descripción</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                name="descripcionEvento"
-                value={currentEvento.descripcionEvento}
+                type="datetime-local"
+                name="fechaHora"
+                value={currentEvento.fechaHora}
                 onChange={handleInputChange}
               />
             </Form.Group>

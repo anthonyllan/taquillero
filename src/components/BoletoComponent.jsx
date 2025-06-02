@@ -10,9 +10,9 @@ export const BoletoComponent = () => {
   const [modalType, setModalType] = useState('add');
   const [currentBoleto, setCurrentBoleto] = useState({
     idBoleto: '',
-    numeroAsiento: '',
-    precio: 0,
     fechaCompra: '',
+    precioBoleto: 0,
+    idPago: '',
     idEvento: ''
   });
 
@@ -24,7 +24,23 @@ export const BoletoComponent = () => {
 
   const handleShowModal = (type, boleto = {}) => {
     setModalType(type);
-    setCurrentBoleto(boleto);
+    if (type === 'add') {
+      setCurrentBoleto({
+        idBoleto: '',
+        fechaCompra: '',
+        precioBoleto: 0,
+        idPago: '',
+        idEvento: ''
+      });
+    } else {
+      // Para editar, convertir la fecha al formato correcto para el input date
+      const fechaFormateada = boleto.fechaCompra ? 
+        new Date(boleto.fechaCompra).toISOString().split('T')[0] : '';
+      setCurrentBoleto({
+        ...boleto,
+        fechaCompra: fechaFormateada
+      });
+    }
     setShowModal(true);
   };
 
@@ -34,19 +50,30 @@ export const BoletoComponent = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCurrentBoleto({ ...currentBoleto, [name]: value });
+    // Convertir precio a número
+    const finalValue = name === 'precioBoleto' ? parseFloat(value) || 0 : value;
+    setCurrentBoleto({ ...currentBoleto, [name]: finalValue });
   };
 
   const handleSubmit = () => {
+    // Preparar el objeto para enviar al backend
+    const boletoParaEnviar = {
+      ...currentBoleto,
+      // Convertir la fecha al formato que espera el backend
+      fechaCompra: currentBoleto.fechaCompra ? new Date(currentBoleto.fechaCompra).toISOString() : null,
+      // Asegurar que el precio sea un número
+      precioBoleto: parseFloat(currentBoleto.precioBoleto) || 0
+    };
+
     if (modalType === 'add') {
-      guardarBoleto(currentBoleto)
+      guardarBoleto(boletoParaEnviar)
         .then((response) => {
           setBoletos([...boletos, response.data]);
           handleCloseModal();
         })
         .catch((err) => setError(err.message));
     } else if (modalType === 'edit') {
-      actualizarBoleto(currentBoleto.idBoleto, currentBoleto)
+      actualizarBoleto(currentBoleto.idBoleto, boletoParaEnviar)
         .then((response) => {
           const updatedBoletos = boletos.map((boleto) =>
             boleto.idBoleto === currentBoleto.idBoleto ? response.data : boleto
@@ -66,6 +93,20 @@ export const BoletoComponent = () => {
       .catch((err) => setError(err.message));
   };
 
+  // Función para formatear la fecha para mostrar
+  const formatearFecha = (fecha) => {
+    if (!fecha) return '';
+    return new Date(fecha).toLocaleDateString('es-ES');
+  };
+
+  // Función para formatear el precio
+  const formatearPrecio = (precio) => {
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(precio || 0);
+  };
+
   return (
     <div className="container mt-4">
       <h2>Lista de Boletos</h2>
@@ -75,10 +116,10 @@ export const BoletoComponent = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Número de Asiento</th>
-            <th>Precio</th>
             <th>Fecha de Compra</th>
-            <th>Evento ID</th>
+            <th>Precio</th>
+            <th>ID Pago</th>
+            <th>ID Evento</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -86,8 +127,8 @@ export const BoletoComponent = () => {
           {boletos.map((boleto) => (
             <tr key={boleto.idBoleto}>
               <td>{boleto.idBoleto}</td>
-              <td>{boleto.fechaCompra}</td>
-              <td>${boleto.precioBoleto}</td>
+              <td>{formatearFecha(boleto.fechaCompra)}</td>
+              <td>{formatearPrecio(boleto.precioBoleto)}</td>
               <td>{boleto.idPago}</td>
               <td>{boleto.idEvento}</td>
               <td>
@@ -109,31 +150,32 @@ export const BoletoComponent = () => {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group controlId="formNumeroAsiento" className="mb-3">
-              <Form.Label>Número de Asiento</Form.Label>
-              <Form.Control
-                type="text"
-                name="numeroAsiento"
-                value={currentBoleto.numeroAsiento}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
-            <Form.Group controlId="formPrecio" className="mb-3">
-              <Form.Label>Precio</Form.Label>
-              <Form.Control
-                type="number"
-                step="0.01"
-                name="precio"
-                value={currentBoleto.precio}
-                onChange={handleInputChange}
-              />
-            </Form.Group>
             <Form.Group controlId="formFechaCompra" className="mb-3">
               <Form.Label>Fecha de Compra</Form.Label>
               <Form.Control
                 type="date"
                 name="fechaCompra"
                 value={currentBoleto.fechaCompra}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formPrecioBoleto" className="mb-3">
+              <Form.Label>Precio del Boleto</Form.Label>
+              <Form.Control
+                type="number"
+                step="0.01"
+                min="0"
+                name="precioBoleto"
+                value={currentBoleto.precioBoleto}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+            <Form.Group controlId="formIdPago" className="mb-3">
+              <Form.Label>ID Pago</Form.Label>
+              <Form.Control
+                type="number"
+                name="idPago"
+                value={currentBoleto.idPago}
                 onChange={handleInputChange}
               />
             </Form.Group>
