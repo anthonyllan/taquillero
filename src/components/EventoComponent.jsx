@@ -75,9 +75,8 @@ export const EventoComponent = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Nombre</th>
+            <th>Tipo evento</th>
             <th>Fecha</th>
-            <th>Descripción</th>
             <th>Plaza ID</th>
             <th>Acciones</th>
           </tr>
@@ -86,9 +85,8 @@ export const EventoComponent = () => {
           {eventos.map((evento) => (
             <tr key={evento.idEvento}>
               <td>{evento.idEvento}</td>
-              <td>{evento.nombreEvento}</td>
-              <td>{evento.fechaEvento}</td>
-              <td>{evento.descripcionEvento}</td>
+              <td>{evento.tipoEvento}</td>
+              <td>{evento.fechaHora}</td>
               <td>{evento.idPlaza}</td>
               <td>
                 <Button variant="warning" className="me-2" onClick={() => handleShowModal('edit', evento)}>

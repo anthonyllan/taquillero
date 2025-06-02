@@ -86,9 +86,9 @@ export const BoletoComponent = () => {
           {boletos.map((boleto) => (
             <tr key={boleto.idBoleto}>
               <td>{boleto.idBoleto}</td>
-              <td>{boleto.numeroAsiento}</td>
-              <td>${boleto.precio}</td>
               <td>{boleto.fechaCompra}</td>
+              <td>${boleto.precioBoleto}</td>
+              <td>{boleto.idPago}</td>
               <td>{boleto.idEvento}</td>
               <td>
                 <Button variant="warning" className="me-2" onClick={() => handleShowModal('edit', boleto)}>
